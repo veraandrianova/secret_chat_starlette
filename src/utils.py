@@ -29,3 +29,53 @@ def get_keys(user):
     with open(f"{user}_public.pem", "wb") as f:
         f.write(pem_pub)
     return f'{user}_private.pem'
+
+
+def create_signature(user: str, word):
+    """Получение подписи"""
+    message = word.encode('utf-8')
+    print(user)
+    print(message)
+    with open(f"{user}_private.pem", 'r') as f:
+        text = f.read()
+        pem_priv = text.encode('utf-8')
+        private_key = load_pem_private_key(pem_priv, password=None)
+        print(private_key)
+    signature = private_key.sign(
+        message,
+        padding.PSS(
+            mgf=padding.MGF1(hashes.SHA256()),
+            salt_length=padding.PSS.MAX_LENGTH
+        ),
+        hashes.SHA256()
+    )
+    return signature
+
+
+def converting_to_bytes(word: str):
+    """Перевод строки в байты"""
+    message = word.encode('utf-8')
+    return message
+
+
+def check_signature(key, signature, text):
+    """Проверка подписи"""
+    print(key)
+    print(signature)
+    message = converting_to_bytes(text)
+    code_key = key.encode('utf-8')
+    print(code_key)
+    pub_key = load_pem_public_key(code_key)
+    try:
+        pub_key.verify(
+            signature,
+            message,
+            padding.PSS(
+                mgf=padding.MGF1(hashes.SHA256()),
+                salt_length=padding.PSS.MAX_LENGTH
+            ),
+            hashes.SHA256()
+        )
+        return True
+    except:
+        return False

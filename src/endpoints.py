@@ -1,12 +1,13 @@
 import uuid
 import os
+import ast
 from starlette import status
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
 from starlette.responses import RedirectResponse, HTMLResponse
 from starlette.templating import Jinja2Templates
 from starlette.responses import FileResponse
 
-from .utils import get_keys
+from .utils import get_keys, create_signature, check_signature
 from .ws import Channel
 
 template = Jinja2Templates(directory='templates')
@@ -27,16 +28,19 @@ class Echo(WebSocketEndpoint):
         self.channel = Channel(channel_uuid=channel_uuid, websocket=websocket, encoding=self.encoding)
         Channel.group_add(self.channel, self.channel_groups, websocket)
         await websocket.accept()
-        l = os.path.join('secrer_chat', 'test2_public.pem')
         with open(f"{channel_uuid}_public.pem", "r") as f:
             g = f.read()
-            await self.channel.send(websocket, l)
+            await self.channel.send(websocket, g)
 
     async def on_receive(self, websocket, data):
         print(data)
-        l = []
-        l.append(data)
-        print(l)
+        data_dict = ast.literal_eval(data)
+        message = data_dict.get('message')
+        key = data_dict.get('key')
+        # signature = data_dict.get('signature')
+        signature = create_signature(self.channel.channel_uuid, message)
+        print(signature)
+        check_signature(key, signature, message)
         group = self.channel.CHANNEL_GROUPS.get(self.channel_groups)
         for web in group:
-            await self.channel.send(web, data)
+            await self.channel.send(web, message)

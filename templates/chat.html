@@ -7,10 +7,12 @@
         <h1>Секретный чат</h1>
          <ul id='messages'>
         </ul>
-        <form action="" onsubmit="sendMessage(event)">
+        <form action="" enctype="multipart/form-data"  onsubmit="sendMessage(event)">
             <input type="text" id="messageText" autocomplete="off"/>
+            <input type="file" id="file" name="file" />
             <input type="text" id="key" autocomplete="off"/>
-            <button>Send</button>
+            <input type="checkbox" id="signature" checked>
+            <button>Отправить</button>
         </form>
         <script>
             var ws = new WebSocket("ws://localhost:8000/ws");
@@ -23,9 +25,23 @@
             };
             function sendMessage(event) {
                 var input = document.getElementById("messageText")
-                ws.send(input.value)
-                input.value = ''
-                event.preventDefault()
+                var signature = document.getElementById("signature")
+                //var file = document.getElementById("file")[0]
+                var key = document.getElementById("key");
+                //var reader = new FileReader();
+                //reader.readAsDataURL(file);
+                //reader.addEventListener('load', (e) => {
+                  // e.target.result – содержимое файла
+                //});
+                var data = {
+                    "key": key.value,
+                    "message": input.value,
+                    "signature": signature.value,
+                    //"file": e.target.result
+                };
+                console.log(data)
+                ws.send(JSON.stringify(data));
+                event.preventDefault();
             }
         </script>
     </body>
