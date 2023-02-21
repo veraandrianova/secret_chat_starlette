@@ -2,16 +2,30 @@
 <html>
     <head>
         <title>Chat</title>
+        <style>
+           H1 {
+            text-align:center;
+            font-size: 220%;
+            font-family: Verdana, Arial, Helvetica, sans-serif;
+            color: #333366;
+           }
+           form {
+            display:table;
+            margin:auto;
+            }
+            ul#messages {
+            padding: 50px 450px;
+            }
+         </style>
     </head>
     <body>
         <h1>Секретный чат</h1>
          <ul id='messages'>
         </ul>
         <form action="" enctype="multipart/form-data"  onsubmit="sendMessage(event)">
-            <input type="text" id="messageText" autocomplete="off"/>
-            <input type="file" id="file" name="file" />
-            <input type="text" id="key" autocomplete="off"/>
-            <input type="checkbox" id="signature" checked>
+            <p><textarea name="message" id="messageText" cols="100" rows="10" placeholder="Текст сообщения"></textarea></p>
+            <p><input type="file" id="file" name="file" /></p>
+            <p> Подписать </p><input type="checkbox" id="signature" checked>
             <button>Отправить</button>
         </form>
         <script>
@@ -26,15 +40,29 @@
             function sendMessage(event) {
                 var input = document.getElementById("messageText")
                 var signature = document.getElementById("signature")
-                //var file = document.getElementById("file")[0]
-                var key = document.getElementById("key");
+                const formData = new FormData();
+                const fileField = document.querySelector('input[type="file"]');
+
+                formData.append('key', fileField.files[0]);
+
+                fetch('localhost', {
+                  method: 'PUT',
+                  body: formData
+                })
+                  .then((response) => response.json())
+                  .then((result) => {
+                    console.log('Success:', result);
+                  })
+                  .catch((error) => {
+                    console.error('Error:', error);
+                  });
+                //var file = document.getElementById("file")[0];
                 //var reader = new FileReader();
                 //reader.readAsDataURL(file);
                 //reader.addEventListener('load', (e) => {
                   // e.target.result – содержимое файла
                 //});
                 var data = {
-                    "key": key.value,
                     "message": input.value,
                     "signature": signature.value,
                     //"file": e.target.result

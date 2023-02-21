@@ -1,16 +1,12 @@
-import uuid
-import os
 import ast
-from starlette import status
 from starlette.endpoints import HTTPEndpoint, WebSocketEndpoint
-from starlette.responses import RedirectResponse, HTMLResponse
 from starlette.templating import Jinja2Templates
-from starlette.responses import FileResponse
 
 from .utils import get_keys, create_signature, check_signature
 from .ws import Channel
 
 template = Jinja2Templates(directory='templates')
+
 
 class Homepage(HTTPEndpoint):
     async def get(self, request):
@@ -38,9 +34,9 @@ class Echo(WebSocketEndpoint):
         message = data_dict.get('message')
         key = data_dict.get('key')
         # signature = data_dict.get('signature')
-        signature = create_signature(self.channel.channel_uuid, message)
-        print(signature)
-        check_signature(key, signature, message)
+        # signature = create_signature(self.channel.channel_uuid, message)
+        # print(signature)
+        # check_signature(key, signature, message)
         group = self.channel.CHANNEL_GROUPS.get(self.channel_groups)
         for web in group:
             await self.channel.send(web, message)
