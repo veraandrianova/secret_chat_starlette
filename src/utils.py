@@ -19,16 +19,18 @@ def get_keys(user):
         format=serialization.PrivateFormat.TraditionalOpenSSL,
         encryption_algorithm=serialization.NoEncryption()
     )
-    with open(f"{user}_private.pem", "wb") as f:
+    with open(f"temp/{user}_private.pem", "wb") as f:
         f.write(pem_priv)
     public_key = private_key.public_key()
     pem_pub = public_key.public_bytes(
         encoding=serialization.Encoding.PEM,
         format=serialization.PublicFormat.SubjectPublicKeyInfo
     )
-    with open(f"{user}_public.pem", "wb") as f:
+
+    with open(f"temp/{user}_public.pem", "wb") as f:
         f.write(pem_pub)
-    return f'{user}_private.pem'
+
+    return f'temp/{user}_private.pem'
 
 
 def create_signature(user: str, word):

@@ -24,19 +24,18 @@ class Echo(WebSocketEndpoint):
         self.channel = Channel(channel_uuid=channel_uuid, websocket=websocket, encoding=self.encoding)
         Channel.group_add(self.channel, self.channel_groups, websocket)
         await websocket.accept()
-        with open(f"{channel_uuid}_public.pem", "r") as f:
-            g = f.read()
-            await self.channel.send(websocket, g)
+        with open(f"temp/{channel_uuid}_public.pem", "r") as f:
+            await self.channel.send(websocket, f"temp/{channel_uuid}_public.pem")
 
     async def on_receive(self, websocket, data):
         print(data)
-        data_dict = ast.literal_eval(data)
-        message = data_dict.get('message')
-        key = data_dict.get('key')
+        # data_dict = ast.literal_eval(data)
+        # message = data_dict.get('message')
+        # key = data_dict.get('key')
         # signature = data_dict.get('signature')
         # signature = create_signature(self.channel.channel_uuid, message)
         # print(signature)
         # check_signature(key, signature, message)
         group = self.channel.CHANNEL_GROUPS.get(self.channel_groups)
         for web in group:
-            await self.channel.send(web, message)
+            await self.channel.send(web, data)

@@ -20,57 +20,14 @@
     </head>
     <body>
         <h1>Секретный чат</h1>
-         <ul id='messages'>
-        </ul>
-        <form action="" enctype="multipart/form-data"  onsubmit="sendMessage(event)">
+        <ul id='messages'></ul>
+        <form name="messageForm">
             <p><textarea name="message" id="messageText" cols="100" rows="10" placeholder="Текст сообщения"></textarea></p>
             <p><input type="file" id="file" name="file" /></p>
-            <p> Подписать </p><input type="checkbox" id="signature" checked>
-            <button>Отправить</button>
+            <p> Подписать  <input type="checkbox" id="signature" checked></p>
+            <input type="submit" id="sendForm" value="Отправить" />
         </form>
-        <script>
-            var ws = new WebSocket("ws://localhost:8000/ws");
-            ws.onmessage = function(event) {
-                var messages = document.getElementById('messages')
-                var message = document.createElement('li')
-                var content = document.createTextNode(event.data)
-                message.appendChild(content)
-                messages.appendChild(message)
-            };
-            function sendMessage(event) {
-                var input = document.getElementById("messageText")
-                var signature = document.getElementById("signature")
-                const formData = new FormData();
-                const fileField = document.querySelector('input[type="file"]');
 
-                formData.append('key', fileField.files[0]);
-
-                fetch('localhost', {
-                  method: 'PUT',
-                  body: formData
-                })
-                  .then((response) => response.json())
-                  .then((result) => {
-                    console.log('Success:', result);
-                  })
-                  .catch((error) => {
-                    console.error('Error:', error);
-                  });
-                //var file = document.getElementById("file")[0];
-                //var reader = new FileReader();
-                //reader.readAsDataURL(file);
-                //reader.addEventListener('load', (e) => {
-                  // e.target.result – содержимое файла
-                //});
-                var data = {
-                    "message": input.value,
-                    "signature": signature.value,
-                    //"file": e.target.result
-                };
-                console.log(data)
-                ws.send(JSON.stringify(data));
-                event.preventDefault();
-            }
-        </script>
+        <script src="/static/main.js"></script>
     </body>
 </html>
